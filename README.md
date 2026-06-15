@@ -10,6 +10,12 @@ under 100ms.
 ## install
 
 ```sh
+curl -fsSL https://raw.githubusercontent.com/paoloanzn/housekeeper/main/install.sh | bash
+```
+
+or from a checkout:
+
+```sh
 ./install.sh        # builds, drops a binary in ~/.local/bin
 ```
 
