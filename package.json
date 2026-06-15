@@ -1,0 +1,20 @@
+{
+  "name": "housekeeper",
+  "version": "0.0.0",
+  "description": "A minimal Bun CLI",
+  "type": "module",
+  "module": "index.ts",
+  "bin": {
+    "housekeeper": "./index.ts",
+    "hsk": "./index.ts"
+  },
+  "scripts": {
+    "start": "bun run index.ts",
+    "dev": "bun --watch run index.ts",
+    "build": "bun build --compile index.ts --outfile dist/housekeeper"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^25.9.3"
+  }
+}
