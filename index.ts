@@ -3,6 +3,7 @@
 import { parseArgs } from "node:util";
 import { readdir, stat, mkdir, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { walk, formatBytes, WALK_DEPTH_COUNT, MIN_WALK_DATA_SIZE_MB } from "./walk";
 
 const { values, positionals } = parseArgs({
   args: Bun.argv.slice(2),
@@ -33,7 +34,7 @@ Usage:
 
 Commands:
   compact  Reorganize old top-level files/dirs in <path> into weekly folders (zips by default; use --no-zip to keep folders)
-  hello    Print a greeting
+  walk     Walk entrypoint recursively and list heavy folders (≥ MIN_WALK_DATA_SIZE_MB, subtree depth ≤ WALK_DEPTH_COUNT)
   help     Show this help message
 
 Options:
@@ -218,6 +219,34 @@ switch (command) {
     }
 
     console.log("Compact complete.");
+    break;
+  }
+
+  case "walk": {
+    const entryArg = positionals[1];
+    if (!entryArg) {
+      console.error("Usage: housekeeper walk <entry_point>");
+      process.exit(1);
+    }
+    const entry = path.resolve(expandTilde(entryArg));
+
+    console.log(`Walking: ${entry}`);
+    const results = await walk(entry);
+
+    if (results.length === 0) {
+      console.log(`No heavy folders found (≥ ${MIN_WALK_DATA_SIZE_MB} MB with ≤ ${WALK_DEPTH_COUNT} levels beneath).`);
+    } else {
+      console.log(`Heavy folders (≥${MIN_WALK_DATA_SIZE_MB} MB, ≤${WALK_DEPTH_COUNT} depth beneath):`);
+      for (const r of results) {
+        console.log(`  ${formatBytes(r.size).padStart(8)}  ${r.path}`);
+      }
+    }
+    break;
+  }
+
+  case "hello": {
+    const name = positionals[1] ?? "world";
+    console.log(`Hello, ${name}!`);
     break;
   }
 

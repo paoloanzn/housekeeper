@@ -11,7 +11,8 @@
   "scripts": {
     "start": "bun run index.ts",
     "dev": "bun --watch run index.ts",
-    "build": "bun build --compile index.ts --outfile dist/housekeeper"
+    "build": "bun build --compile index.ts --outfile dist/housekeeper",
+    "test": "bun test"
   },
   "devDependencies": {
     "@types/bun": "latest",
