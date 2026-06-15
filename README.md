@@ -1,43 +1,53 @@
 # housekeeper
 
-Minimal Bun CLI (TypeScript).
+cleans up your disk. finds the heavy folders, boxes up the old junk.
 
-## Run
+a small Bun CLI. zero dependencies. one of the commands (`walk`) goes straight to
+the macOS kernel with `getattrlistbulk(2)` and a worker pool, so it's ~3x faster
+than the naive readdir+stat version. walks `~/Library/Caches` (123k files) in
+under 100ms.
 
-```bash
-bun run index.ts --help
-# or
-bun start --help
+## install
+
+```sh
+./install.sh        # builds, drops a binary in ~/.local/bin
 ```
 
-## Development
+needs [bun](https://bun.sh). that's it.
 
-```bash
-bun dev
+## use
+
+```sh
+hsk walk ~/Library/Caches      # list heavy folders, biggest first
+hsk compact ~/Downloads        # archive old files into weekly zips
+hsk compact ~/Downloads --no-zip
 ```
 
-## Build standalone binary
+`walk` shows folders ≥500MB whose subtree is ≤4 levels deep. `compact` moves
+everything older than a week into `archive-YYYY-MM-DD-DD/` folders, one per week,
+then zips them.
 
-```bash
-bun run build
-./dist/housekeeper --help
-```
+## knobs
 
-## Install globally (dev)
-
-```bash
-bun link
-housekeeper --version
-```
-
-## Commands
+env vars, if you care:
 
 ```
-housekeeper hello [name]
-housekeeper --version
-housekeeper --help
+MIN_WALK_DATA_SIZE_MB   min folder size to report   (500)
+WALK_DEPTH_COUNT        max subtree depth to report (4)
+WALK_WORKERS            parallel walkers on macOS   (4)
+DEFAULT_WALK_EXCLUDE    paths to skip               (/System, /dev, ...)
 ```
 
-## Project
+## dev
 
-Created with Bun v1.3.11. Zero runtime dependencies.
+```sh
+bun test        # benchmarks walk against a real path
+bun run build   # standalone binary -> dist/housekeeper
+```
+
+non-macOS falls back to a portable async walk. same output, slower.
+
+---
+
+fully vibecoded ❤️.
+
